@@ -1,25 +1,33 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-
-import { login, clearAuthState } from '../actions/auth';
-
-class Login extends Component {
+// import { signup, startSign } from '../actions/sign';
+import { signup, clearAuthState } from '../actions/auth';
+// import { login } from '../actions/auth';
+class SignUp extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      name: '',
       email: '',
       password: '',
+      repassword: '',
     };
   }
 
   componentWillUnmount() {
     this.props.dispatch(clearAuthState());
   }
+
   handleEmailChange = (e) => {
     this.setState({
       email: e.target.value,
+    });
+  };
+  handleNameChange = (e) => {
+    this.setState({
+      name: e.target.value,
     });
   };
   handlePassChange = (e) => {
@@ -27,24 +35,42 @@ class Login extends Component {
       password: e.target.value,
     });
   };
+  handleRePassChange = (e) => {
+    this.setState({
+      repassword: e.target.value,
+    });
+  };
   handleFormSubmit = (e) => {
     e.preventDefault();
 
-    const { email, password } = this.state;
+    const { name, email, password, repassword } = this.state;
 
-    if (email && password) this.props.dispatch(login(email, password));
+    // if (email && password == repassword) {
+    if (email && name && password && repassword) {
+      // this.props.dispatch(startSign());
+      this.props.dispatch(signup(name, email, password, repassword));
+    }
+
+    // if (email && password) this.props.dispatch(login(email, password));
   };
   render() {
     const { error, inProgress, isLoggedIn } = this.props.auth;
-    const { from } = this.props.location.state || { from: { pathName: '/' } };
-
     if (isLoggedIn) {
-      return <Redirect to={from} />;
+      return <Redirect to="/" />;
     }
     return (
       <form className="login-form">
-        <span className="login-signup-header">Log In</span>
+        <span className="login-signup-header">Register</span>
         {error && <div className="alert error-dailog">{error}</div>}
+        <div className="field">
+          <input
+            type="name"
+            placeholder="UserName"
+            onChange={this.handleNameChange}
+            value={this.state.name}
+            required
+          />
+        </div>
         <div className="field">
           <input
             type="email"
@@ -64,13 +90,22 @@ class Login extends Component {
           />
         </div>
         <div className="field">
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            onChange={this.handleRePassChange}
+            value={this.state.repassword}
+            required
+          />
+        </div>
+        <div className="field">
           {inProgress ? (
             <button onClick={this.handleFormSubmit} disabled={inProgress}>
-              Logging in...
+              Signing Up...
             </button>
           ) : (
             <button onClick={this.handleFormSubmit} disabled={inProgress}>
-              Log In
+              Sign Up
             </button>
           )}
         </div>
@@ -81,7 +116,8 @@ class Login extends Component {
 
 function mapStateToProps(state) {
   return {
+    // sign: state.sign,
     auth: state.auth,
   };
 }
-export default connect(mapStateToProps)(Login);
+export default connect(mapStateToProps)(SignUp);
